@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, send_file, jsonify
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 import io
 
@@ -92,6 +92,8 @@ def process_image():
 
         bg_radius = int(request.form.get('bg_radius', 15))
 
+        box_width_percent = int(request.form.get('box_width_percent', 80))  # % der Bildbreite
+
         
 
         # Lade Bild
@@ -136,7 +138,15 @@ def process_image():
 
         except:
 
-            font = ImageFont.load_default()
+            try:
+
+                # Fallback zu einem anderen Font
+
+                font = ImageFont.truetype("/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf", font_size)
+
+            except:
+
+                font = ImageFont.load_default()
 
         
 
@@ -148,9 +158,95 @@ def process_image():
 
         
 
-        # Verarbeite mehrzeiligen Text
+        # Berechne maximale Box-Breite basierend auf Prozent
 
-        lines = text.split('\n')
+        max_box_width = int(img.size[0] * (box_width_percent / 100.0)) - (2 * bg_padding)
+
+        
+
+        # Stelle sicher, dass die Box nicht größer als das Bild ist
+
+        max_box_width = min(max_box_width, img.size[0] - (2 * bg_padding))
+
+        
+
+        # Funktion für Textumbruch
+
+        def wrap_text(text, font, max_width):
+
+            """Bricht Text in Zeilen um, die nicht breiter als max_width sind"""
+
+            lines = []
+
+            temp_draw = ImageDraw.Draw(Image.new('RGBA', (1, 1)))
+
+            
+
+            for paragraph in text.split('\n'):
+
+                if not paragraph:
+
+                    lines.append('')
+
+                    continue
+
+                    
+
+                words = paragraph.split(' ')
+
+                current_line = []
+
+                
+
+                for word in words:
+
+                    test_line = ' '.join(current_line + [word])
+
+                    bbox = temp_draw.textbbox((0, 0), test_line, font=font)
+
+                    test_width = bbox[2] - bbox[0]
+
+                    
+
+                    if test_width <= max_width:
+
+                        current_line.append(word)
+
+                    else:
+
+                        if current_line:
+
+                            lines.append(' '.join(current_line))
+
+                            current_line = [word]
+
+                        else:
+
+                            # Wort ist zu lang, füge es trotzdem hinzu
+
+                            lines.append(word)
+
+                
+
+                if current_line:
+
+                    lines.append(' '.join(current_line))
+
+            
+
+            return lines
+
+        
+
+        # Verarbeite mehrzeiligen Text mit Umbruch
+
+        wrapped_lines = wrap_text(text, font, max_box_width)
+
+        
+
+        # Entferne leere Strings die durch doppelte Newlines entstehen
+
+        wrapped_lines = [line if line else ' ' for line in wrapped_lines]
 
         
 
@@ -172,7 +268,7 @@ def process_image():
 
         
 
-        for line in lines:
+        for line in wrapped_lines:
 
             bbox = draw.textbbox((0, 0), line, font=font)
 
@@ -192,45 +288,53 @@ def process_image():
 
         if position == 'center':
 
-            x = (img.size[0] - max_width) // 2 + x_offset
+            x = max(bg_padding, (img.size[0] - max_width) // 2 + x_offset)
 
-            y = (img.size[1] - total_height) // 2 + y_offset
+            y = max(bg_padding, (img.size[1] - total_height) // 2 + y_offset)
 
         elif position == 'top':
 
-            x = (img.size[0] - max_width) // 2 + x_offset
+            x = max(bg_padding, (img.size[0] - max_width) // 2 + x_offset)
 
-            y = 20 + y_offset
+            y = max(bg_padding, 20 + y_offset)
 
         elif position == 'bottom':
 
-            x = (img.size[0] - max_width) // 2 + x_offset
+            x = max(bg_padding, (img.size[0] - max_width) // 2 + x_offset)
 
-            y = img.size[1] - total_height - 20 + y_offset
+            y = max(bg_padding, img.size[1] - total_height - 20 + y_offset)
 
         elif position == 'top-left':
 
-            x = 20 + x_offset
+            x = max(bg_padding, 20 + x_offset)
 
-            y = 20 + y_offset
+            y = max(bg_padding, 20 + y_offset)
 
         elif position == 'top-right':
 
-            x = img.size[0] - max_width - 20 + x_offset
+            x = max(bg_padding, img.size[0] - max_width - 20 + x_offset)
 
-            y = 20 + y_offset
+            y = max(bg_padding, 20 + y_offset)
 
         elif position == 'bottom-left':
 
-            x = 20 + x_offset
+            x = max(bg_padding, 20 + x_offset)
 
-            y = img.size[1] - total_height - 20 + y_offset
+            y = max(bg_padding, img.size[1] - total_height - 20 + y_offset)
 
         elif position == 'bottom-right':
 
-            x = img.size[0] - max_width - 20 + x_offset
+            x = max(bg_padding, img.size[0] - max_width - 20 + x_offset)
 
-            y = img.size[1] - total_height - 20 + y_offset
+            y = max(bg_padding, img.size[1] - total_height - 20 + y_offset)
+
+        
+
+        # Stelle sicher, dass die Box im Bild bleibt
+
+        x = max(bg_padding, min(x, img.size[0] - max_width - bg_padding))
+
+        y = max(bg_padding, min(y, img.size[1] - total_height - bg_padding))
 
         
 
@@ -314,7 +418,13 @@ def process_image():
 
         
 
-        for i, line in enumerate(lines):
+        for i, line in enumerate(wrapped_lines):
+
+            if i >= len(line_bboxes):
+
+                continue
+
+                
 
             # Zentriere jede Zeile innerhalb der Box
 
@@ -324,19 +434,23 @@ def process_image():
 
             
 
-            # Zeichne Outline
+            # Zeichne Outline nur wenn Text vorhanden
 
-            for adj_x in range(-2, 3):
+            if line.strip():
 
-                for adj_y in range(-2, 3):
+                for adj_x in range(-2, 3):
 
-                    draw_overlay.text((line_x + adj_x, current_y + adj_y), line, font=font, fill=outline_color)
+                    for adj_y in range(-2, 3):
+
+                        draw_overlay.text((line_x + adj_x, current_y + adj_y), line, font=font, fill=outline_color)
+
+                
+
+                # Zeichne Text
+
+                draw_overlay.text((line_x, current_y), line, font=font, fill=text_color_rgb + (255,))
 
             
-
-            # Zeichne Text
-
-            draw_overlay.text((line_x, current_y), line, font=font, fill=text_color_rgb + (255,))
 
             current_y += line_height
 
@@ -360,9 +474,13 @@ def process_image():
 
         
 
-        return send_file(img_io, mimetype='image/jpeg', as_attachment=True, 
+        return send_file(img_io, mimetype='image/jpeg')
 
-                        download_name='image_with_text.jpg')
+    
+
+    except Exception as e:
+
+        return jsonify({'error': str(e)}), 500
 
     
 

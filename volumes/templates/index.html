@@ -300,6 +300,22 @@
 
         
 
+        <div style="background: #f0f0f0; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none;" id="urlBox">
+
+            <label style="font-weight: bold; color: #667eea;">🔗 Teile diese Einstellungen:</label>
+
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+
+                <input type="text" id="shareUrl" readonly style="flex: 1; padding: 10px; background: white;">
+
+                <button type="button" onclick="copyUrl()" style="width: auto; padding: 10px 20px;">📋 Kopieren</button>
+
+            </div>
+
+        </div>
+
+        
+
         <form id="imageForm" enctype="multipart/form-data">
 
             <div class="form-group">
@@ -428,6 +444,18 @@ Zeile 3</textarea>
 
 
 
+            <div class="form-group">
+
+                <label for="box_width_percent">Box-Breite (% der Bildbreite):</label>
+
+                <input type="range" id="box_width_percent" name="box_width_percent" value="80" min="20" max="100" oninput="document.getElementById('widthValue').textContent = this.value + '%'">
+
+                <span id="widthValue" style="font-weight: bold; color: #667eea;">80%</span>
+
+            </div>
+
+
+
             <div class="row">
 
                 <div class="form-group">
@@ -490,9 +518,17 @@ Zeile 3</textarea>
 
 
 
-            <button type="submit">🎨 Text hinzufügen & Download</button>
+            <button type="submit">👁️ Vorschau erstellen</button>
 
         </form>
+
+
+
+        <button type="button" onclick="copyCurrentUrl()" id="copyUrlBtn" style="margin-top: 15px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); display: none;">
+
+            🔗 Einstellungs-URL kopieren
+
+        </button>
 
 
 
@@ -512,6 +548,8 @@ Zeile 3</textarea>
 
             <img id="previewImg" src="" alt="Preview">
 
+            <button id="downloadBtn" style="margin-top: 20px;">⬇️ Bild herunterladen</button>
+
         </div>
 
     </div>
@@ -521,6 +559,8 @@ Zeile 3</textarea>
     <script>
 
         let selectedSampleImg = null;
+
+        let currentFormData = null;
 
 
 
@@ -572,6 +612,8 @@ Zeile 3</textarea>
 
             const formData = new FormData(this);
 
+            currentFormData = formData; // Speichere für Download
+
             
 
             document.getElementById('loading').style.display = 'block';
@@ -604,25 +646,9 @@ Zeile 3</textarea>
 
                 const url = URL.createObjectURL(blob);
 
-                
-
-                // Download
-
-                const a = document.createElement('a');
-
-                a.href = url;
-
-                a.download = 'image_with_text.jpg';
-
-                document.body.appendChild(a);
-
-                a.click();
-
-                document.body.removeChild(a);
 
 
-
-                // Preview
+                // Preview anzeigen (kein automatischer Download mehr)
 
                 document.getElementById('previewImg').src = url;
 
@@ -637,6 +663,54 @@ Zeile 3</textarea>
             } finally {
 
                 document.getElementById('loading').style.display = 'none';
+
+            }
+
+        });
+
+
+
+        // Download Button Handler
+
+        document.getElementById('downloadBtn').addEventListener('click', async function() {
+
+            if (!currentFormData) {
+
+                alert('Bitte erst eine Vorschau erstellen!');
+
+                return;
+
+            }
+
+
+
+            try {
+
+                // Hole das Vorschau-Bild und trigger Download
+
+                const previewImg = document.getElementById('previewImg');
+
+                const response = await fetch(previewImg.src);
+
+                const blob = await response.blob();
+
+                
+
+                const a = document.createElement('a');
+
+                a.href = URL.createObjectURL(blob);
+
+                a.download = 'image_with_text.jpg';
+
+                document.body.appendChild(a);
+
+                a.click();
+
+                document.body.removeChild(a);
+
+            } catch (error) {
+
+                alert('Download-Fehler: ' + error.message);
 
             }
 
