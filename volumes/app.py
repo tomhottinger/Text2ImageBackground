@@ -10,7 +10,11 @@ from pathlib import Path
 
 
 
-app = Flask(__name__)
+app = Flask(__name__, 
+
+            static_folder='static',
+
+            static_url_path='/static')
 
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
@@ -29,6 +33,10 @@ Path(app.config['UPLOAD_FOLDER']).mkdir(exist_ok=True)
 Path(app.config['SAMPLE_IMAGES']).mkdir(exist_ok=True)
 
 Path(app.config['FONTS_FOLDER']).mkdir(exist_ok=True)
+
+Path('static/css').mkdir(parents=True, exist_ok=True)
+
+Path('static/js').mkdir(parents=True, exist_ok=True)
 
 
 

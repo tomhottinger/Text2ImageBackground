@@ -10,285 +10,7 @@
 
     <title>Text auf Bild</title>
 
-    <style>
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-
-            min-height: 100vh;
-
-            padding: 20px;
-
-        }
-
-        .container {
-
-            max-width: 900px;
-
-            margin: 0 auto;
-
-            background: white;
-
-            border-radius: 16px;
-
-            padding: 40px;
-
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-
-        }
-
-        h1 {
-
-            color: #333;
-
-            margin-bottom: 30px;
-
-            text-align: center;
-
-            font-size: 32px;
-
-        }
-
-        .form-group {
-
-            margin-bottom: 20px;
-
-        }
-
-        label {
-
-            display: block;
-
-            margin-bottom: 8px;
-
-            color: #555;
-
-            font-weight: 600;
-
-        }
-
-        input[type="text"], input[type="number"], select, input[type="file"], textarea {
-
-            width: 100%;
-
-            padding: 12px;
-
-            border: 2px solid #e0e0e0;
-
-            border-radius: 8px;
-
-            font-size: 16px;
-
-            transition: border-color 0.3s;
-
-            font-family: inherit;
-
-        }
-
-        textarea {
-
-            resize: vertical;
-
-            min-height: 80px;
-
-        }
-
-        input:focus, select:focus, textarea:focus {
-
-            outline: none;
-
-            border-color: #667eea;
-
-        }
-
-        input[type="color"] {
-
-            width: 100px;
-
-            height: 50px;
-
-            border: none;
-
-            border-radius: 8px;
-
-            cursor: pointer;
-
-        }
-
-        input[type="range"] {
-
-            width: calc(100% - 60px);
-
-            margin-right: 10px;
-
-        }
-
-        h2 {
-
-            margin: 30px 0 20px 0;
-
-            color: #667eea;
-
-            font-size: 20px;
-
-            border-bottom: 2px solid #e0e0e0;
-
-            padding-bottom: 10px;
-
-        }
-
-        .row {
-
-            display: grid;
-
-            grid-template-columns: 1fr 1fr;
-
-            gap: 20px;
-
-        }
-
-        button {
-
-            width: 100%;
-
-            padding: 16px;
-
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-
-            color: white;
-
-            border: none;
-
-            border-radius: 8px;
-
-            font-size: 18px;
-
-            font-weight: 600;
-
-            cursor: pointer;
-
-            transition: transform 0.2s, box-shadow 0.2s;
-
-        }
-
-        button:hover {
-
-            transform: translateY(-2px);
-
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-
-        }
-
-        button:active {
-
-            transform: translateY(0);
-
-        }
-
-        #preview {
-
-            margin-top: 30px;
-
-            text-align: center;
-
-            display: none;
-
-        }
-
-        #preview img {
-
-            max-width: 100%;
-
-            border-radius: 8px;
-
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-
-        }
-
-        .sample-images {
-
-            display: grid;
-
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-
-            gap: 10px;
-
-            margin-top: 10px;
-
-        }
-
-        .sample-images img {
-
-            width: 100%;
-
-            height: 100px;
-
-            object-fit: cover;
-
-            border-radius: 8px;
-
-            cursor: pointer;
-
-            border: 3px solid transparent;
-
-            transition: border-color 0.3s;
-
-        }
-
-        .sample-images img:hover {
-
-            border-color: #667eea;
-
-        }
-
-        .sample-images img.selected {
-
-            border-color: #764ba2;
-
-        }
-
-        .loading {
-
-            display: none;
-
-            text-align: center;
-
-            padding: 20px;
-
-        }
-
-        .spinner {
-
-            border: 4px solid #f3f3f3;
-
-            border-top: 4px solid #667eea;
-
-            border-radius: 50%;
-
-            width: 40px;
-
-            height: 40px;
-
-            animation: spin 1s linear infinite;
-
-            margin: 0 auto;
-
-        }
-
-        @keyframes spin {
-
-            0% { transform: rotate(0deg); }
-
-            100% { transform: rotate(360deg); }
-
-        }
-
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
 </head>
 
@@ -300,15 +22,15 @@
 
         
 
-        <div style="background: #f0f0f0; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none;" id="urlBox">
+        <div class="url-box" id="urlBox">
 
-            <label style="font-weight: bold; color: #667eea;">🔗 Teile diese Einstellungen:</label>
+            <label>🔗 Teile diese Einstellungen:</label>
 
-            <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <div class="url-box-content">
 
-                <input type="text" id="shareUrl" readonly style="flex: 1; padding: 10px; background: white;">
+                <input type="text" id="shareUrl" readonly>
 
-                <button type="button" onclick="copyUrl()" style="width: auto; padding: 10px 20px;">📋 Kopieren</button>
+                <button type="button" onclick="copyUrl()">📋 Kopieren</button>
 
             </div>
 
@@ -464,7 +186,7 @@ Zeile 3</textarea>
 
 
 
-            <h2 style="margin: 30px 0 20px 0; color: #667eea; font-size: 20px;">🎨 Hintergrund-Box</h2>
+            <h2>🎨 Hintergrund-Box</h2>
 
 
 
@@ -474,7 +196,7 @@ Zeile 3</textarea>
 
                 <input type="range" id="box_width_percent" name="box_width_percent" value="80" min="20" max="100" oninput="document.getElementById('widthValue').textContent = this.value + '%'">
 
-                <span id="widthValue" style="font-weight: bold; color: #667eea;">80%</span>
+                <span id="widthValue" class="slider-value">80%</span>
 
             </div>
 
@@ -498,7 +220,7 @@ Zeile 3</textarea>
 
                     <input type="range" id="bg_opacity" name="bg_opacity" value="128" min="0" max="255" oninput="document.getElementById('opacityValue').textContent = this.value">
 
-                    <span id="opacityValue" style="font-weight: bold; color: #667eea;">128</span>
+                    <span id="opacityValue" class="slider-value">128</span>
 
                 </div>
 
@@ -514,7 +236,7 @@ Zeile 3</textarea>
 
                     <input type="range" id="bg_blur" name="bg_blur" value="10" min="0" max="30" oninput="document.getElementById('blurValue').textContent = this.value">
 
-                    <span id="blurValue" style="font-weight: bold; color: #667eea;">10</span>
+                    <span id="blurValue" class="slider-value">10</span>
 
                 </div>
 
@@ -548,14 +270,6 @@ Zeile 3</textarea>
 
 
 
-        <button type="button" onclick="copyCurrentUrl()" id="copyUrlBtn" style="margin-top: 15px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
-
-            🔗 Einstellungs-URL kopieren
-
-        </button>
-
-
-
         <div class="loading" id="loading">
 
             <div class="spinner"></div>
@@ -572,175 +286,33 @@ Zeile 3</textarea>
 
             <img id="previewImg" src="" alt="Preview">
 
-            <button id="downloadBtn" style="margin-top: 20px;">⬇️ Bild herunterladen</button>
+            <button id="downloadBtn">⬇️ Bild herunterladen</button>
 
         </div>
+
+
+
+        <details class="settings-url-details">
+
+            <summary>🔗 Einstellungs-URL (zum Teilen)</summary>
+
+            <div class="settings-url-content">
+
+                <p>Diese URL enthält alle deine Einstellungen (außer Bild und Text). Kopiere sie um die Konfiguration zu teilen:</p>
+
+                <textarea id="settingsUrlBox" readonly></textarea>
+
+                <button type="button" onclick="copySettingsUrl()">📋 URL kopieren</button>
+
+            </div>
+
+        </details>
 
     </div>
 
 
 
-    <script>
-
-        let selectedSampleImg = null;
-
-        let currentFormData = null;
-
-
-
-        function selectSample(img) {
-
-            // Deselect all
-
-            document.querySelectorAll('.sample-images img').forEach(i => i.classList.remove('selected'));
-
-            // Select clicked
-
-            img.classList.add('selected');
-
-            selectedSampleImg = img.dataset.name;
-
-            document.getElementById('selectedSample').value = selectedSampleImg;
-
-            // Clear file input
-
-            document.getElementById('imageFile').value = '';
-
-        }
-
-
-
-        document.getElementById('imageFile').addEventListener('change', function() {
-
-            if (this.files.length > 0) {
-
-                // Clear sample selection
-
-                document.querySelectorAll('.sample-images img').forEach(i => i.classList.remove('selected'));
-
-                document.getElementById('selectedSample').value = '';
-
-                selectedSampleImg = null;
-
-            }
-
-        });
-
-
-
-        document.getElementById('imageForm').addEventListener('submit', async function(e) {
-
-            e.preventDefault();
-
-            
-
-            const formData = new FormData(this);
-
-            currentFormData = formData; // Speichere für Download
-
-            
-
-            document.getElementById('loading').style.display = 'block';
-
-            document.getElementById('preview').style.display = 'none';
-
-
-
-            try {
-
-                const response = await fetch('/process', {
-
-                    method: 'POST',
-
-                    body: formData
-
-                });
-
-
-
-                if (!response.ok) {
-
-                    throw new Error('Fehler bei der Verarbeitung');
-
-                }
-
-
-
-                const blob = await response.blob();
-
-                const url = URL.createObjectURL(blob);
-
-
-
-                // Preview anzeigen (kein automatischer Download mehr)
-
-                document.getElementById('previewImg').src = url;
-
-                document.getElementById('preview').style.display = 'block';
-
-
-
-            } catch (error) {
-
-                alert('Fehler: ' + error.message);
-
-            } finally {
-
-                document.getElementById('loading').style.display = 'none';
-
-            }
-
-        });
-
-
-
-        // Download Button Handler
-
-        document.getElementById('downloadBtn').addEventListener('click', async function() {
-
-            if (!currentFormData) {
-
-                alert('Bitte erst eine Vorschau erstellen!');
-
-                return;
-
-            }
-
-
-
-            try {
-
-                // Hole das Vorschau-Bild und trigger Download
-
-                const previewImg = document.getElementById('previewImg');
-
-                const response = await fetch(previewImg.src);
-
-                const blob = await response.blob();
-
-                
-
-                const a = document.createElement('a');
-
-                a.href = URL.createObjectURL(blob);
-
-                a.download = 'image_with_text.jpg';
-
-                document.body.appendChild(a);
-
-                a.click();
-
-                document.body.removeChild(a);
-
-            } catch (error) {
-
-                alert('Download-Fehler: ' + error.message);
-
-            }
-
-        });
-
-    </script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 
 </body>
 

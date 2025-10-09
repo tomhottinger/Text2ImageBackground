@@ -18,6 +18,8 @@ services:
 
       - ./volumes/templates:/app/templates
 
+      - ./volumes/static:/app/static
+
       - ./volumes/sample_images:/app/sample_images
 
       - ./volumes/uploads:/app/uploads
