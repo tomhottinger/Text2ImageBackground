@@ -18,6 +18,8 @@ app.config['UPLOAD_FOLDER'] = 'uploads'
 
 app.config['SAMPLE_IMAGES'] = 'sample_images'
 
+app.config['FONTS_FOLDER'] = 'fonts'
+
 
 
 # Erstelle notwendige Ordner
@@ -25,6 +27,46 @@ app.config['SAMPLE_IMAGES'] = 'sample_images'
 Path(app.config['UPLOAD_FOLDER']).mkdir(exist_ok=True)
 
 Path(app.config['SAMPLE_IMAGES']).mkdir(exist_ok=True)
+
+Path(app.config['FONTS_FOLDER']).mkdir(exist_ok=True)
+
+
+
+def get_available_fonts():
+
+    """Scannt den fonts Ordner und gibt verfügbare Fonts zurück"""
+
+    fonts = []
+
+    fonts_dir = Path(app.config['FONTS_FOLDER'])
+
+    
+
+    if fonts_dir.exists():
+
+        for font_file in fonts_dir.glob('*.ttf'):
+
+            # Entferne .ttf und verwende Dateinamen als Display-Name
+
+            font_name = font_file.stem
+
+            fonts.append({
+
+                'name': font_name,
+
+                'file': font_file.name,
+
+                'path': str(font_file)
+
+            })
+
+    
+
+    # Sortiere alphabetisch
+
+    fonts.sort(key=lambda x: x['name'])
+
+    return fonts
 
 
 
@@ -44,7 +86,13 @@ def index():
 
     
 
-    return render_template('index.html', sample_images=sample_images)
+    # Liste verfügbare Fonts
+
+    available_fonts = get_available_fonts()
+
+    
+
+    return render_template('index.html', sample_images=sample_images, fonts=available_fonts)
 
 
 
@@ -69,6 +117,8 @@ def process_image():
         text = request.form.get('text', 'Sample Text')
 
         font_size = int(request.form.get('font_size', 40))
+
+        font_name = request.form.get('font_name', '')  # NEU: Font-Auswahl
 
         text_color = request.form.get('text_color', '#FFFFFF')
 
@@ -130,23 +180,53 @@ def process_image():
 
         
 
-        # Lade Font (Fallback auf default wenn nicht vorhanden)
+        # Lade Font (mit User-Auswahl oder Fallback)
 
-        try:
+        font = None
 
-            font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", font_size)
+        
 
-        except:
+        # Versuche User-gewählten Font zu laden
+
+        if font_name:
+
+            available_fonts = get_available_fonts()
+
+            selected_font = next((f for f in available_fonts if f['name'] == font_name), None)
+
+            
+
+            if selected_font:
+
+                try:
+
+                    font = ImageFont.truetype(selected_font['path'], font_size)
+
+                except Exception as e:
+
+                    print(f"Fehler beim Laden von {font_name}: {e}")
+
+        
+
+        # Fallback auf System-Fonts
+
+        if font is None:
 
             try:
 
-                # Fallback zu einem anderen Font
-
-                font = ImageFont.truetype("/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf", font_size)
+                font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", font_size)
 
             except:
 
-                font = ImageFont.load_default()
+                try:
+
+                    font = ImageFont.truetype("/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf", font_size)
+
+                except:
+
+                    # Letzter Fallback
+
+                    font = ImageFont.load_default()
 
         
 
@@ -184,7 +264,9 @@ def process_image():
 
             for paragraph in text.split('\n'):
 
-                if not paragraph:
+                if not paragraph.strip():
+
+                    # Leere Zeile
 
                     lines.append('')
 
@@ -202,9 +284,15 @@ def process_image():
 
                     test_line = ' '.join(current_line + [word])
 
-                    bbox = temp_draw.textbbox((0, 0), test_line, font=font)
+                    try:
 
-                    test_width = bbox[2] - bbox[0]
+                        bbox = temp_draw.textbbox((0, 0), test_line, font=font)
+
+                        test_width = bbox[2] - bbox[0]
+
+                    except:
+
+                        test_width = len(test_line) * font_size * 0.6
 
                     
 
@@ -244,12 +332,6 @@ def process_image():
 
         
 
-        # Entferne leere Strings die durch doppelte Newlines entstehen
-
-        wrapped_lines = [line if line else ' ' for line in wrapped_lines]
-
-        
-
         # Berechne Dimensionen für mehrzeiligen Text
 
         draw = ImageDraw.Draw(txt_layer)
@@ -270,17 +352,37 @@ def process_image():
 
         for line in wrapped_lines:
 
-            bbox = draw.textbbox((0, 0), line, font=font)
+            if not line or not line.strip():
 
-            line_width = bbox[2] - bbox[0]
+                # Leere Zeile - füge Platzhalter hinzu
 
-            line_height_actual = bbox[3] - bbox[1]
+                line_bboxes.append((0, font_size))
 
-            max_width = max(max_width, line_width)
+                total_height += line_height
 
-            line_bboxes.append((line_width, line_height_actual))
+            else:
 
-            total_height += line_height
+                try:
+
+                    bbox = draw.textbbox((0, 0), line, font=font)
+
+                    line_width = bbox[2] - bbox[0]
+
+                    line_height_actual = bbox[3] - bbox[1]
+
+                    max_width = max(max_width, line_width)
+
+                    line_bboxes.append((line_width, line_height_actual))
+
+                    total_height += line_height
+
+                except:
+
+                    # Fallback
+
+                    line_bboxes.append((len(line) * font_size * 0.6, font_size))
+
+                    total_height += line_height
 
         
 
@@ -424,6 +526,16 @@ def process_image():
 
                 continue
 
+            
+
+            # Überspringe leere Zeilen beim Zeichnen
+
+            if not line or not line.strip():
+
+                current_y += line_height
+
+                continue
+
                 
 
             # Zentriere jede Zeile innerhalb der Box
@@ -434,9 +546,9 @@ def process_image():
 
             
 
-            # Zeichne Outline nur wenn Text vorhanden
+            try:
 
-            if line.strip():
+                # Zeichne Outline
 
                 for adj_x in range(-2, 3):
 
@@ -449,6 +561,12 @@ def process_image():
                 # Zeichne Text
 
                 draw_overlay.text((line_x, current_y), line, font=font, fill=text_color_rgb + (255,))
+
+            except Exception as e:
+
+                # Bei Fehler trotzdem fortfahren
+
+                pass
 
             
 

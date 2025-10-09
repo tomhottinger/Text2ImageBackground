@@ -1,3 +1,4 @@
 volumes/sample_images/*
-volumes/templates/*
+#volumes/templates/*
 volumes/uploads/*
+volumes/fonts/*

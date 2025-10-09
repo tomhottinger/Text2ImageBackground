@@ -370,13 +370,37 @@ Zeile 3</textarea>
 
                 <div class="form-group">
 
+                    <label for="font_name">Schriftart:</label>
+
+                    <select id="font_name" name="font_name">
+
+                        <option value="">System Standard</option>
+
+                        {% for font in fonts %}
+
+                        <option value="{{ font.name }}">{{ font.name }}</option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+
+                <div class="form-group">
+
                     <label for="font_size">Schriftgröße:</label>
 
                     <input type="number" id="font_size" name="font_size" value="40" min="10" max="200">
 
                 </div>
 
+            </div>
 
+
+
+            <div class="row">
 
                 <div class="form-group">
 
@@ -386,31 +410,31 @@ Zeile 3</textarea>
 
                 </div>
 
-            </div>
 
 
+                <div class="form-group">
 
-            <div class="form-group">
+                    <label for="position">Position:</label>
 
-                <label for="position">Position:</label>
+                    <select id="position" name="position">
 
-                <select id="position" name="position">
+                        <option value="center">Mitte</option>
 
-                    <option value="center">Mitte</option>
+                        <option value="top">Oben</option>
 
-                    <option value="top">Oben</option>
+                        <option value="bottom">Unten</option>
 
-                    <option value="bottom">Unten</option>
+                        <option value="top-left">Oben Links</option>
 
-                    <option value="top-left">Oben Links</option>
+                        <option value="top-right">Oben Rechts</option>
 
-                    <option value="top-right">Oben Rechts</option>
+                        <option value="bottom-left">Unten Links</option>
 
-                    <option value="bottom-left">Unten Links</option>
+                        <option value="bottom-right">Unten Rechts</option>
 
-                    <option value="bottom-right">Unten Rechts</option>
+                    </select>
 
-                </select>
+                </div>
 
             </div>
 
@@ -524,7 +548,7 @@ Zeile 3</textarea>
 
 
 
-        <button type="button" onclick="copyCurrentUrl()" id="copyUrlBtn" style="margin-top: 15px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); display: none;">
+        <button type="button" onclick="copyCurrentUrl()" id="copyUrlBtn" style="margin-top: 15px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
 
             🔗 Einstellungs-URL kopieren
 
