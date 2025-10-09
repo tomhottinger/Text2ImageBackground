@@ -50,6 +50,8 @@
 
             text-align: center;
 
+            font-size: 32px;
+
         }
 
         .form-group {
@@ -70,7 +72,7 @@
 
         }
 
-        input[type="text"], input[type="number"], select, input[type="file"] {
+        input[type="text"], input[type="number"], select, input[type="file"], textarea {
 
             width: 100%;
 
@@ -84,9 +86,19 @@
 
             transition: border-color 0.3s;
 
+            font-family: inherit;
+
         }
 
-        input:focus, select:focus {
+        textarea {
+
+            resize: vertical;
+
+            min-height: 80px;
+
+        }
+
+        input:focus, select:focus, textarea:focus {
 
             outline: none;
 
@@ -105,6 +117,28 @@
             border-radius: 8px;
 
             cursor: pointer;
+
+        }
+
+        input[type="range"] {
+
+            width: calc(100% - 60px);
+
+            margin-right: 10px;
+
+        }
+
+        h2 {
+
+            margin: 30px 0 20px 0;
+
+            color: #667eea;
+
+            font-size: 20px;
+
+            border-bottom: 2px solid #e0e0e0;
+
+            padding-bottom: 10px;
 
         }
 
@@ -304,9 +338,13 @@
 
             <div class="form-group">
 
-                <label for="text">Text:</label>
+                <label for="text">Text (mehrere Zeilen möglich):</label>
 
-                <input type="text" id="text" name="text" value="Dein Text hier" required>
+                <textarea id="text" name="text" rows="3" required>Dein Text hier
+
+Zeile 2
+
+Zeile 3</textarea>
 
             </div>
 
@@ -381,6 +419,72 @@
                     <input type="number" id="y_offset" name="y_offset" value="0">
 
                 </div>
+
+            </div>
+
+
+
+            <h2 style="margin: 30px 0 20px 0; color: #667eea; font-size: 20px;">🎨 Hintergrund-Box</h2>
+
+
+
+            <div class="row">
+
+                <div class="form-group">
+
+                    <label for="bg_color">Box-Farbe:</label>
+
+                    <input type="color" id="bg_color" name="bg_color" value="#000000">
+
+                </div>
+
+
+
+                <div class="form-group">
+
+                    <label for="bg_opacity">Transparenz (0-255):</label>
+
+                    <input type="range" id="bg_opacity" name="bg_opacity" value="128" min="0" max="255" oninput="document.getElementById('opacityValue').textContent = this.value">
+
+                    <span id="opacityValue" style="font-weight: bold; color: #667eea;">128</span>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="row">
+
+                <div class="form-group">
+
+                    <label for="bg_blur">Blur-Stärke (0-30):</label>
+
+                    <input type="range" id="bg_blur" name="bg_blur" value="10" min="0" max="30" oninput="document.getElementById('blurValue').textContent = this.value">
+
+                    <span id="blurValue" style="font-weight: bold; color: #667eea;">10</span>
+
+                </div>
+
+
+
+                <div class="form-group">
+
+                    <label for="bg_radius">Ecken-Radius (px):</label>
+
+                    <input type="number" id="bg_radius" name="bg_radius" value="15" min="0" max="100">
+
+                </div>
+
+            </div>
+
+
+
+            <div class="form-group">
+
+                <label for="bg_padding">Box-Padding (px):</label>
+
+                <input type="number" id="bg_padding" name="bg_padding" value="20" min="0" max="100">
 
             </div>
 
