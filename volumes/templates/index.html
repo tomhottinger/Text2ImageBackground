@@ -143,26 +143,17 @@ Zeile 3</textarea>
             <img id="previewImg" src="" alt="Preview">
             <button id="downloadBtn">⬇️ Bild herunterladen</button>
         </div>
+<div class="url-box" id="urlBox">
+
+    <label>Preset URL:</label>
+
+    <input type="text" id="shareUrl" readonly>
+
+</div>
+
         
-        <div class="url-box" id="urlBox">
-            <!-- label>🔗 Teile diese Einstellungen:</label -->
-            <div class="url-box-content">
-                <input type="text" id="shareUrl" readonly>
-                <!-- button type="button" onclick="copyUrl()">📋 Kopieren</button -->
-            </div>
-        </div>
-
-
-
-            <summary>🔗 Einstellungs-URL (zum Teilen)</summary>
-            <div class="settings-url-content">
-                <p>Diese URL enthält alle deine Einstellungen (außer Bild und Text). Kopiere sie um die Konfiguration zu teilen:</p>
-                <textarea id="settingsUrlBox" readonly></textarea>
-                <button type="button" onclick="copySettingsUrl()">📋 URL kopieren</button>
-            </div>
-        </details -->
     </div>
-
+    
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>

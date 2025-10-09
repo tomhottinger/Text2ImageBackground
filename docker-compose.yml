@@ -1,51 +1,26 @@
 version: '3.8'
 
-
-
 services:
-
   image-text-app:
-
     build: .
-
     container_name: image-text-overlay
-
     restart: unless-stopped
-
     volumes:
-
       - ./volumes/app.py:/app/app.py
-
       - ./volumes/templates:/app/templates
-
       - ./volumes/static:/app/static
-
       - ./volumes/sample_images:/app/sample_images
-
       - ./volumes/uploads:/app/uploads
-
       - ./volumes/fonts:/app/fonts
-
     networks:
-
       - proxy
-
     labels:
-
       - "traefik.enable=true"
-
-      - "traefik.http.routers.image-text.rule=Host(`t2i.t71.ch`)"
-
+      - "traefik.http.routers.image-text.rule=Host(`imgoverlay.t71.ch`)"
       - "traefik.http.routers.image-text.entrypoints=websecure"
-
       - "traefik.http.routers.image-text.tls.certresolver=letsencrypt"
-
       - "traefik.http.services.image-text.loadbalancer.server.port=5000"
 
-
-
 networks:
-
   proxy:
-
     external: true
