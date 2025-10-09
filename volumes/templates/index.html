@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+
+<html lang="de">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Text auf Bild</title>
+
+    <style>
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+            min-height: 100vh;
+
+            padding: 20px;
+
+        }
+
+        .container {
+
+            max-width: 900px;
+
+            margin: 0 auto;
+
+            background: white;
+
+            border-radius: 16px;
+
+            padding: 40px;
+
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+
+        }
+
+        h1 {
+
+            color: #333;
+
+            margin-bottom: 30px;
+
+            text-align: center;
+
+        }
+
+        .form-group {
+
+            margin-bottom: 20px;
+
+        }
+
+        label {
+
+            display: block;
+
+            margin-bottom: 8px;
+
+            color: #555;
+
+            font-weight: 600;
+
+        }
+
+        input[type="text"], input[type="number"], select, input[type="file"] {
+
+            width: 100%;
+
+            padding: 12px;
+
+            border: 2px solid #e0e0e0;
+
+            border-radius: 8px;
+
+            font-size: 16px;
+
+            transition: border-color 0.3s;
+
+        }
+
+        input:focus, select:focus {
+
+            outline: none;
+
+            border-color: #667eea;
+
+        }
+
+        input[type="color"] {
+
+            width: 100px;
+
+            height: 50px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            cursor: pointer;
+
+        }
+
+        .row {
+
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 20px;
+
+        }
+
+        button {
+
+            width: 100%;
+
+            padding: 16px;
+
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+            color: white;
+
+            border: none;
+
+            border-radius: 8px;
+
+            font-size: 18px;
+
+            font-weight: 600;
+
+            cursor: pointer;
+
+            transition: transform 0.2s, box-shadow 0.2s;
+
+        }
+
+        button:hover {
+
+            transform: translateY(-2px);
+
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+
+        }
+
+        button:active {
+
+            transform: translateY(0);
+
+        }
+
+        #preview {
+
+            margin-top: 30px;
+
+            text-align: center;
+
+            display: none;
+
+        }
+
+        #preview img {
+
+            max-width: 100%;
+
+            border-radius: 8px;
+
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+
+        }
+
+        .sample-images {
+
+            display: grid;
+
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+
+            gap: 10px;
+
+            margin-top: 10px;
+
+        }
+
+        .sample-images img {
+
+            width: 100%;
+
+            height: 100px;
+
+            object-fit: cover;
+
+            border-radius: 8px;
+
+            cursor: pointer;
+
+            border: 3px solid transparent;
+
+            transition: border-color 0.3s;
+
+        }
+
+        .sample-images img:hover {
+
+            border-color: #667eea;
+
+        }
+
+        .sample-images img.selected {
+
+            border-color: #764ba2;
+
+        }
+
+        .loading {
+
+            display: none;
+
+            text-align: center;
+
+            padding: 20px;
+
+        }
+
+        .spinner {
+
+            border: 4px solid #f3f3f3;
+
+            border-top: 4px solid #667eea;
+
+            border-radius: 50%;
+
+            width: 40px;
+
+            height: 40px;
+
+            animation: spin 1s linear infinite;
+
+            margin: 0 auto;
+
+        }
+
+        @keyframes spin {
+
+            0% { transform: rotate(0deg); }
+
+            100% { transform: rotate(360deg); }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>🖼️ Text auf Bild</h1>
+
+        
+
+        <form id="imageForm" enctype="multipart/form-data">
+
+            <div class="form-group">
+
+                <label>Bild hochladen:</label>
+
+                <input type="file" name="image" id="imageFile" accept="image/*">
+
+            </div>
+
+
+
+            {% if sample_images %}
+
+            <div class="form-group">
+
+                <label>Oder wähle ein Sample-Bild:</label>
+
+                <div class="sample-images">
+
+                    {% for img in sample_images %}
+
+                    <img src="/sample_image/{{ img }}" data-name="{{ img }}" onclick="selectSample(this)">
+
+                    {% endfor %}
+
+                </div>
+
+                <input type="hidden" name="sample_image" id="selectedSample">
+
+            </div>
+
+            {% endif %}
+
+
+
+            <div class="form-group">
+
+                <label for="text">Text:</label>
+
+                <input type="text" id="text" name="text" value="Dein Text hier" required>
+
+            </div>
+
+
+
+            <div class="row">
+
+                <div class="form-group">
+
+                    <label for="font_size">Schriftgröße:</label>
+
+                    <input type="number" id="font_size" name="font_size" value="40" min="10" max="200">
+
+                </div>
+
+
+
+                <div class="form-group">
+
+                    <label for="text_color">Textfarbe:</label>
+
+                    <input type="color" id="text_color" name="text_color" value="#FFFFFF">
+
+                </div>
+
+            </div>
+
+
+
+            <div class="form-group">
+
+                <label for="position">Position:</label>
+
+                <select id="position" name="position">
+
+                    <option value="center">Mitte</option>
+
+                    <option value="top">Oben</option>
+
+                    <option value="bottom">Unten</option>
+
+                    <option value="top-left">Oben Links</option>
+
+                    <option value="top-right">Oben Rechts</option>
+
+                    <option value="bottom-left">Unten Links</option>
+
+                    <option value="bottom-right">Unten Rechts</option>
+
+                </select>
+
+            </div>
+
+
+
+            <div class="row">
+
+                <div class="form-group">
+
+                    <label for="x_offset">X-Versatz (px):</label>
+
+                    <input type="number" id="x_offset" name="x_offset" value="0">
+
+                </div>
+
+
+
+                <div class="form-group">
+
+                    <label for="y_offset">Y-Versatz (px):</label>
+
+                    <input type="number" id="y_offset" name="y_offset" value="0">
+
+                </div>
+
+            </div>
+
+
+
+            <button type="submit">🎨 Text hinzufügen & Download</button>
+
+        </form>
+
+
+
+        <div class="loading" id="loading">
+
+            <div class="spinner"></div>
+
+            <p>Bild wird verarbeitet...</p>
+
+        </div>
+
+
+
+        <div id="preview">
+
+            <h2>Vorschau:</h2>
+
+            <img id="previewImg" src="" alt="Preview">
+
+        </div>
+
+    </div>
+
+
+
+    <script>
+
+        let selectedSampleImg = null;
+
+
+
+        function selectSample(img) {
+
+            // Deselect all
+
+            document.querySelectorAll('.sample-images img').forEach(i => i.classList.remove('selected'));
+
+            // Select clicked
+
+            img.classList.add('selected');
+
+            selectedSampleImg = img.dataset.name;
+
+            document.getElementById('selectedSample').value = selectedSampleImg;
+
+            // Clear file input
+
+            document.getElementById('imageFile').value = '';
+
+        }
+
+
+
+        document.getElementById('imageFile').addEventListener('change', function() {
+
+            if (this.files.length > 0) {
+
+                // Clear sample selection
+
+                document.querySelectorAll('.sample-images img').forEach(i => i.classList.remove('selected'));
+
+                document.getElementById('selectedSample').value = '';
+
+                selectedSampleImg = null;
+
+            }
+
+        });
+
+
+
+        document.getElementById('imageForm').addEventListener('submit', async function(e) {
+
+            e.preventDefault();
+
+            
+
+            const formData = new FormData(this);
+
+            
+
+            document.getElementById('loading').style.display = 'block';
+
+            document.getElementById('preview').style.display = 'none';
+
+
+
+            try {
+
+                const response = await fetch('/process', {
+
+                    method: 'POST',
+
+                    body: formData
+
+                });
+
+
+
+                if (!response.ok) {
+
+                    throw new Error('Fehler bei der Verarbeitung');
+
+                }
+
+
+
+                const blob = await response.blob();
+
+                const url = URL.createObjectURL(blob);
+
+                
+
+                // Download
+
+                const a = document.createElement('a');
+
+                a.href = url;
+
+                a.download = 'image_with_text.jpg';
+
+                document.body.appendChild(a);
+
+                a.click();
+
+                document.body.removeChild(a);
+
+
+
+                // Preview
+
+                document.getElementById('previewImg').src = url;
+
+                document.getElementById('preview').style.display = 'block';
+
+
+
+            } catch (error) {
+
+                alert('Fehler: ' + error.message);
+
+            } finally {
+
+                document.getElementById('loading').style.display = 'none';
+
+            }
+
+        });
+
+    </script>
+
+</body>
+
+</html>
