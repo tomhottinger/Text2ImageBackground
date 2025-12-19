@@ -71,6 +71,7 @@ def process_image():
         font_name = request.form.get('font_name', '')  # NEU: Font-Auswahl
         text_color = request.form.get('text_color', '#FFFFFF')
         position = request.form.get('position', 'center')
+        text_align = request.form.get('text_align', 'center')  # NEU: Textausrichtung
         x_offset = int(request.form.get('x_offset', 0))
         y_offset = int(request.form.get('y_offset', 0))
         
@@ -272,15 +273,20 @@ def process_image():
         for i, line in enumerate(wrapped_lines):
             if i >= len(line_bboxes):
                 continue
-            
+
             # Überspringe leere Zeilen beim Zeichnen
             if not line or not line.strip():
                 current_y += line_height
                 continue
-                
-            # Zentriere jede Zeile innerhalb der Box
+
+            # Berechne X-Position basierend auf Textausrichtung
             line_width = line_bboxes[i][0]
-            line_x = x + (max_width - line_width) // 2
+            if text_align == 'left':
+                line_x = x
+            elif text_align == 'right':
+                line_x = x + max_width - line_width
+            else:  # center
+                line_x = x + (max_width - line_width) // 2
             
             try:
                 # Zeichne Outline

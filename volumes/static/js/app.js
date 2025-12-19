@@ -106,6 +106,8 @@ function loadSettingsFromUrl() {
 
     if (params.has('position')) document.getElementById('position').value = params.get('position');
 
+    if (params.has('text_align')) document.getElementById('text_align').value = params.get('text_align');
+
     if (params.has('x_offset')) document.getElementById('x_offset').value = params.get('x_offset');
 
     if (params.has('y_offset')) document.getElementById('y_offset').value = params.get('y_offset');
@@ -209,6 +211,8 @@ function updateShareUrl() {
     params.set('text_color', formData.get('text_color') || '#FFFFFF');
 
     params.set('position', formData.get('position') || 'center');
+
+    params.set('text_align', formData.get('text_align') || 'center');
 
     params.set('x_offset', formData.get('x_offset') || '0');
 
