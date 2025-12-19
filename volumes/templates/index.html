@@ -8,8 +8,11 @@
 </head>
 <body>
     <div class="container">
-        <h1>Text Overlay to Image</h1>
-        
+        <div class="header-with-link">
+            <h1>Text Overlay to Image</h1>
+            <a href="#" id="adminLink" class="admin-link" title="Admin-Bereich">⚙️</a>
+        </div>
+
         <form id="imageForm" enctype="multipart/form-data">
             <div class="form-group">
                 <label>Bild hochladen:</label>
@@ -160,10 +163,13 @@ Zeile 3</textarea>
 
 </div>
 
+    </div>
 
-        <!-- Sample Upload Section -->
-        <div class="admin-section">
-            <h3>🔒 Sample-Bild hochladen (Admin)</h3>
+    <!-- Modal Dialog für Admin -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h3>🔒 Sample-Bild hochladen</h3>
             <form id="uploadSampleForm" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="sample_file">Bild auswählen:</label>
@@ -177,7 +183,6 @@ Zeile 3</textarea>
             </form>
             <div id="uploadMessage" class="upload-message"></div>
         </div>
-
     </div>
 
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>

@@ -98,6 +98,56 @@ function setupEventListeners() {
 
     }
 
+
+
+    // Modal Handlers
+
+    const adminLink = document.getElementById('adminLink');
+
+    const modal = document.getElementById('adminModal');
+
+    const closeBtn = document.querySelector('.modal-close');
+
+
+
+    if (adminLink) {
+
+        adminLink.addEventListener('click', function(e) {
+
+            e.preventDefault();
+
+            modal.style.display = 'block';
+
+        });
+
+    }
+
+
+
+    if (closeBtn) {
+
+        closeBtn.addEventListener('click', function() {
+
+            modal.style.display = 'none';
+
+        });
+
+    }
+
+
+
+    // Close modal when clicking outside
+
+    window.addEventListener('click', function(e) {
+
+        if (e.target === modal) {
+
+            modal.style.display = 'none';
+
+        }
+
+    });
+
 }
 
 

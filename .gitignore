@@ -2,3 +2,4 @@ volumes/sample_images/*
 #volumes/templates/*
 volumes/uploads/*
 volumes/fonts/*
+.env
