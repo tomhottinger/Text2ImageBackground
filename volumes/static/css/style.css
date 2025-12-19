@@ -565,3 +565,85 @@ button:active {
     background: #229954;
 
 }
+
+
+
+/* Admin Section Styles */
+
+.admin-section {
+
+    margin-top: 40px;
+
+    padding: 20px;
+
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+
+    border-radius: 8px;
+
+    border: 2px solid #8e9eab;
+
+}
+
+
+
+.admin-section h3 {
+
+    margin-top: 0;
+
+    color: #2c3e50;
+
+    font-size: 18px;
+
+    margin-bottom: 20px;
+
+}
+
+
+
+.upload-message {
+
+    margin-top: 15px;
+
+    padding: 12px;
+
+    border-radius: 4px;
+
+    font-weight: 500;
+
+    text-align: center;
+
+    display: none;
+
+}
+
+
+
+.upload-message:not(:empty) {
+
+    display: block;
+
+}
+
+
+
+.upload-message.success {
+
+    background: #d4edda;
+
+    color: #155724;
+
+    border: 1px solid #c3e6cb;
+
+}
+
+
+
+.upload-message.error {
+
+    background: #f8d7da;
+
+    color: #721c24;
+
+    border: 1px solid #f5c6cb;
+
+}

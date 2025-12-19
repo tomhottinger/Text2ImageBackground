@@ -86,6 +86,18 @@ function setupEventListeners() {
 
     document.getElementById('downloadBtn').addEventListener('click', handleDownload);
 
+
+
+    // Sample Upload Form Handler
+
+    const uploadForm = document.getElementById('uploadSampleForm');
+
+    if (uploadForm) {
+
+        uploadForm.addEventListener('submit', handleSampleUpload);
+
+    }
+
 }
 
 
@@ -400,7 +412,7 @@ async function handleDownload() {
 
         const blob = await response.blob();
 
-        
+
 
         const a = document.createElement('a');
 
@@ -419,6 +431,84 @@ async function handleDownload() {
         console.error('Download Error:', error);
 
         alert('Download-Fehler: ' + error.message);
+
+    }
+
+}
+
+
+
+// Sample Upload Handler
+
+async function handleSampleUpload(e) {
+
+    e.preventDefault();
+
+
+
+    const formData = new FormData(e.target);
+
+    const messageDiv = document.getElementById('uploadMessage');
+
+
+
+    messageDiv.className = 'upload-message';
+
+    messageDiv.textContent = 'Uploading...';
+
+
+
+    try {
+
+        const response = await fetch('/upload_sample', {
+
+            method: 'POST',
+
+            body: formData
+
+        });
+
+
+
+        const result = await response.json();
+
+
+
+        if (response.ok) {
+
+            messageDiv.className = 'upload-message success';
+
+            messageDiv.textContent = '✅ ' + result.message;
+
+
+
+            // Reset form
+
+            e.target.reset();
+
+
+
+            // Reload page after 2 seconds to show new sample
+
+            setTimeout(() => {
+
+                window.location.reload();
+
+            }, 2000);
+
+        } else {
+
+            messageDiv.className = 'upload-message error';
+
+            messageDiv.textContent = '❌ ' + result.error;
+
+        }
+
+    } catch (error) {
+
+        messageDiv.className = 'upload-message error';
+
+        messageDiv.textContent = '❌ Fehler: ' + error.message;
 
     }
 

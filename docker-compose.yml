@@ -5,6 +5,8 @@ services:
     build: .
     container_name: image-text-overlay
     restart: unless-stopped
+    environment:
+      - UPLOAD_PASSWORD=${UPLOAD_PASSWORD:-changeme}
     volumes:
       - ./volumes/app.py:/app/app.py
       - ./volumes/templates:/app/templates

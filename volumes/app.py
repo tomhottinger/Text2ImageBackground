@@ -3,6 +3,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 import io
 import os
 from pathlib import Path
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__, 
             static_folder='static',
@@ -11,6 +12,8 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['SAMPLE_IMAGES'] = 'sample_images'
 app.config['FONTS_FOLDER'] = 'fonts'
+app.config['UPLOAD_PASSWORD'] = os.environ.get('UPLOAD_PASSWORD', 'changeme')
+app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
 # Erstelle notwendige Ordner
 Path(app.config['UPLOAD_FOLDER']).mkdir(exist_ok=True)
@@ -61,6 +64,52 @@ def index():
 def sample_image(filename):
     """Serve sample images"""
     return send_file(os.path.join(app.config['SAMPLE_IMAGES'], filename))
+
+def allowed_file(filename):
+    """Prüfe ob Dateiendung erlaubt ist"""
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+
+@app.route('/upload_sample', methods=['POST'])
+def upload_sample():
+    """Upload eines neuen Sample-Bildes mit Passwortschutz"""
+    try:
+        # Prüfe Passwort
+        password = request.form.get('password', '')
+        if password != app.config['UPLOAD_PASSWORD']:
+            return jsonify({'error': 'Falsches Passwort'}), 403
+
+        # Prüfe ob Datei vorhanden ist
+        if 'sample_file' not in request.files:
+            return jsonify({'error': 'Keine Datei ausgewählt'}), 400
+
+        file = request.files['sample_file']
+
+        if file.filename == '':
+            return jsonify({'error': 'Keine Datei ausgewählt'}), 400
+
+        if not allowed_file(file.filename):
+            return jsonify({'error': 'Ungültiger Dateityp. Erlaubt sind: ' + ', '.join(app.config['ALLOWED_EXTENSIONS'])}), 400
+
+        # Sichere Dateinamen verwenden
+        filename = secure_filename(file.filename)
+
+        # Prüfe ob Datei bereits existiert
+        filepath = os.path.join(app.config['SAMPLE_IMAGES'], filename)
+        if os.path.exists(filepath):
+            return jsonify({'error': 'Datei existiert bereits'}), 400
+
+        # Speichere Datei
+        file.save(filepath)
+
+        return jsonify({
+            'success': True,
+            'message': f'Bild "{filename}" erfolgreich hochgeladen',
+            'filename': filename
+        }), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/process', methods=['POST'])
 def process_image():
