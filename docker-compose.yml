@@ -21,6 +21,7 @@ services:
       - "traefik.http.routers.image-text.rule=Host(`imgoverlay.t71.ch`)"
       - "traefik.http.routers.image-text.entrypoints=websecure"
       - "traefik.http.routers.image-text.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.image-text.middlewares=authelia@docker"
       - "traefik.http.services.image-text.loadbalancer.server.port=5000"
 
 networks:
