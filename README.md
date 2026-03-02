@@ -1,120 +1,120 @@
 # ImgOverlay
 
-Eine kleine Flask-Webapp, um Text mit konfigurierbarer Hintergrund-Box auf Bilder zu legen und als JPG herunterzuladen.
+A small Flask web app to place text with a configurable background box on images and download the result as JPG.
 
-## Funktionen
+## Features
 
-- Bildquelle: Upload oder Auswahl aus vorhandenen `sample_images`
-- Mehrzeiliger Text mit automatischem Zeilenumbruch
-- Schriftart-Auswahl aus `volumes/fonts/*.ttf`
-- Einstellbar: Schriftgröße, Textfarbe, Position, Textausrichtung, X/Y-Offset
-- Hintergrund-Box: Farbe, Transparenz, Blur, Padding, Eckenradius, Box-Breite (%)
-- Vorschau im Browser + Download als JPG
-- Share/Preset-URL mit aktuellen Parametern
-- Passwortgeschützter Upload neuer Sample-Bilder (`/upload_sample`)
+- Image source: upload your own file or choose from existing `sample_images`
+- Multi-line text with automatic line wrapping
+- Font selection from `volumes/fonts/*.ttf`
+- Configurable: font size, text color, position, text alignment, X/Y offset
+- Background box settings: color, opacity, blur, padding, corner radius, box width (%)
+- Browser preview + JPG download
+- Share/preset URL with current parameters
+- Password-protected upload of new sample images (`/upload_sample`)
 
 ## Tech Stack
 
 - Backend: Python 3.11, Flask, Pillow
-- WSGI/Prod-Server: Gunicorn
-- Frontend: serverseitiges HTML (Jinja2), Vanilla JS, CSS
+- WSGI/prod server: Gunicorn
+- Frontend: server-rendered HTML (Jinja2), Vanilla JS, CSS
 - Container: Docker + Docker Compose
 
 ## Installation
 
-### Option A: Mit Docker Compose (empfohlen)
+### Option A: Docker Compose (recommended)
 
-1. `.env` anlegen:
+1. Create `.env`:
 ```bash
 cp .env.example .env
 ```
 
-2. Passwort setzen:
+2. Set the upload password:
 ```env
-UPLOAD_PASSWORD=dein_starkes_passwort
+UPLOAD_PASSWORD=your_strong_password
 ```
 
-3. Starten:
+3. Start the app:
 ```bash
 docker compose up -d --build
 ```
 
-4. App öffnen:
-- lokal typischerweise unter `http://localhost:5000` (je nach Umgebung/Proxy)
-- in dieser Compose-Datei ist Traefik-Integration konfiguriert
+4. Open the app:
+- usually at `http://localhost:5000` in local setups (depends on your proxy/network setup)
+- this compose file also includes Traefik labels for reverse-proxy deployment
 
-### Option B: Lokal ohne Docker
+### Option B: Local run (without Docker)
 
-1. Virtuelle Umgebung + Dependencies:
+1. Create virtual env and install dependencies:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-2. Start aus dem `volumes`-Verzeichnis (wichtig für relative Pfade):
+2. Start from the `volumes` directory (important because of relative paths):
 ```bash
 cd volumes
-export UPLOAD_PASSWORD=dein_starkes_passwort
+export UPLOAD_PASSWORD=your_strong_password
 python app.py
 ```
 
-3. App öffnen: `http://localhost:5000`
+3. Open: `http://localhost:5000`
 
-## Bedienung
+## Usage
 
-1. Bild hochladen oder ein Sample-Bild auswählen.
-2. Text eingeben (mehrere Zeilen möglich).
-3. Schrift, Farben, Position und Box-Parameter einstellen.
-4. `Vorschau erstellen` klicken.
-5. Ergebnis mit `Bild herunterladen` speichern.
-6. Optional: über das Zahnrad oben rechts neue Sample-Bilder hochladen (Passwort benötigt).
+1. Upload an image or select a sample image.
+2. Enter your text (multiple lines supported).
+3. Adjust font, colors, position, and background box settings.
+4. Click `Vorschau erstellen` (Create Preview).
+5. Save the result with `Bild herunterladen` (Download Image).
+6. Optional: use the gear icon (top right) to upload new sample images (password required).
 
-## API / Routen
+## API / Routes
 
 - `GET /`  
-  Rendered die Hauptseite mit verfügbaren Samples und Fonts.
+  Renders the main page with available sample images and fonts.
 
 - `GET /sample_image/<filename>`  
-  Liefert Sample-Bilder aus `sample_images`.
+  Serves sample images from `sample_images`.
 
 - `POST /process`  
-  Nimmt Formdaten entgegen, rendert Overlay mit Pillow und liefert ein JPG zurück.
+  Accepts form data, renders the text overlay with Pillow, and returns a JPG.
 
 - `POST /upload_sample`  
-  Passwortgeschützter Upload von Sample-Bildern.
+  Password-protected upload endpoint for new sample images.
 
-## Code und Architektur
+## Code and Architecture
 
 ### 1) Backend (`volumes/app.py`)
 
-- Flask-App mit zentraler Konfiguration (`UPLOAD_FOLDER`, `SAMPLE_IMAGES`, `FONTS_FOLDER`, `MAX_CONTENT_LENGTH`, etc.)
-- Font-Erkennung via Scan von `fonts/*.ttf`
-- Bildpipeline in `/process`:
-  - Eingabebild laden (Upload oder Sample)
-  - Text umbrechen (maximale Breite abhängig von Box-Breite in %)
-  - Textblock-Position berechnen
-  - optionalen Blur im Box-Bereich anwenden
-  - semitransparente Rounded-Rectangle zeichnen
-  - Text mit Outline rendern
-  - Ergebnis als JPEG im Memory-Stream zurückgeben
+- Flask app with central config (`UPLOAD_FOLDER`, `SAMPLE_IMAGES`, `FONTS_FOLDER`, `MAX_CONTENT_LENGTH`, etc.)
+- Font discovery by scanning `fonts/*.ttf`
+- Image processing pipeline in `/process`:
+  - Load input image (upload or sample)
+  - Wrap text (max width based on box width in %)
+  - Compute text block position
+  - Optionally blur the box area
+  - Draw semi-transparent rounded rectangle
+  - Render outlined text
+  - Return result as in-memory JPEG stream
 
 ### 2) Frontend (`volumes/templates` + `volumes/static`)
 
-- `index.html` enthält Formular, Vorschaubereich, URL-Box und Admin-Modal
+- `index.html` includes the form, preview area, URL box, and admin modal
 - `app.js`:
-  - initialisiert Formularzustand aus URL-Parametern
-  - erzeugt laufend Share-URL
-  - sendet Formular per `fetch('/process')`
-  - zeigt Preview an und steuert Download
-  - verarbeitet Sample-Uploads (`/upload_sample`)
-- `style.css` liefert Layout/Modal/Form-Styling
+  - initializes form state from URL parameters
+  - continuously updates the share URL
+  - submits form data via `fetch('/process')`
+  - renders preview and handles download
+  - handles sample uploads (`/upload_sample`)
+- `style.css` provides layout, modal, and form styling
 
 ### 3) Deployment
 
-- `Dockerfile` nutzt `python:3.11-slim`, installiert Requirements, startet Gunicorn
-- `docker-compose.yml` mountet Quellcode und Assets aus `./volumes/*` in den Container
-- Compose enthält Traefik-Labels für Reverse Proxy/TLS-Middleware
+- `Dockerfile` uses `python:3.11-slim`, installs requirements, and starts Gunicorn
+- `docker-compose.yml` mounts source code and assets from `./volumes/*` into the container
+- Compose includes Traefik labels for reverse proxy/TLS middleware
 
 ## Directory Layout
 
@@ -124,27 +124,27 @@ python app.py
 ├── docker-compose.yml
 ├── requirements.txt
 ├── .env.example
-├── templates/                  # optional/leer im aktuellen Stand
-├── uploads/                    # optional/legacy im Root
+├── templates/                  # optional/empty in current state
+├── uploads/                    # optional/legacy at repo root
 └── volumes/
-    ├── app.py                  # Flask-Backend
+    ├── app.py                  # Flask backend
     ├── templates/
-    │   └── index.html          # Hauptseite (Jinja2)
+    │   └── index.html          # main page (Jinja2)
     ├── static/
-    │   ├── css/style.css       # Styling
-    │   └── js/app.js           # Frontend-Logik
-    ├── fonts/                  # .ttf-Schriften für Auswahl im UI
-    ├── sample_images/          # auswählbare Beispielbilder
-    └── uploads/                # Upload-Ziel (falls verwendet)
+    │   ├── css/style.css       # styling
+    │   └── js/app.js           # frontend logic
+    ├── fonts/                  # .ttf fonts available in UI
+    ├── sample_images/          # selectable sample images
+    └── uploads/                # upload target (if used)
 ```
 
-## Konfiguration
+## Configuration
 
-- `UPLOAD_PASSWORD` (Env-Variable): Passwort für `/upload_sample`
-- `MAX_CONTENT_LENGTH`: derzeit 16 MB pro Upload
+- `UPLOAD_PASSWORD` (env var): password for `/upload_sample`
+- `MAX_CONTENT_LENGTH`: currently 16 MB per upload
 - `ALLOWED_EXTENSIONS`: `png`, `jpg`, `jpeg`, `gif`, `webp`
 
-## Hinweise
+## Notes
 
-- Die App speichert das Ergebnis nicht serverseitig dauerhaft, sondern liefert das verarbeitete Bild direkt als Response.
-- Für Produktion Passwort ändern und Zugriff auf Upload-Funktion zusätzlich absichern (z. B. Reverse-Proxy Auth).
+- The app does not persist processed results server-side; it returns the generated image directly in the response.
+- For production, change the upload password and protect upload access additionally (for example via reverse-proxy auth).
