@@ -122,6 +122,7 @@ python app.py
 .
 ├── Dockerfile
 ├── docker-compose.yml
+├── LICENSE
 ├── requirements.txt
 ├── .env.example
 ├── templates/                  # optional/empty in current state
@@ -148,3 +149,9 @@ python app.py
 
 - The app does not persist processed results server-side; it returns the generated image directly in the response.
 - For production, change the upload password and protect upload access additionally (for example via reverse-proxy auth).
+- Run this application only behind a reverse proxy so it is sufficiently secured.
+- `docker-compose.yml` already contains example labels if you want to use Traefik.
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE).
